@@ -1,0 +1,10 @@
+#安装simplifyEnrichment包方法：
+#原网站：https://www.bioconductor.org/packages/release/bioc/html/simplifyEnrichment.html
+
+
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+  
+BiocManager::install("simplifyEnrichment")
+
+#BiocManage下面其他包也可以如此安装
