@@ -1,0 +1,52 @@
+#下面有#的部分实际是预期出现的运行结果，其前面的代码运行需要等待些时间
+#simplifyEnrichment包安装方法见另一文档
+
+library(msigdbr)
+library(simplifyEnrichment)
+library(dplyr)
+
+m_df = msigdbr(species = "Mus musculus", category = "C5",subcategory = "GO:BP")
+GOIDs = m_df$gs_exact_source%>% unique() %>% sample(,size = 300) # generate GOID sets randomly
+
+head(GOIDs)
+# [1] "GO:0009256" "GO:0009256" "GO:0009256" "GO:0009256" "GO:0009256" "GO:0006103"
+
+mat = GO_similarity(GOIDs)
+df = simplifyGO(mat,method = "kmeans")
+
+net = reshape2::melt(mat)
+net = net[which(net$value > 0.6),]
+net = net[which(as.character(net$Var1)> as.character(net$Var2)),]
+
+head(net)
+# Var1       Var2     value
+# 402  GO:0015824 GO:0014050 0.6017792
+# 511  GO:1990266 GO:0072676 0.7430274
+# 1109 GO:1901224 GO:0070374 0.6283545
+# 1430 GO:1900425 GO:0060331 0.7138334
+# 1785 GO:1905456 GO:1902037 0.7216737
+# 1834 GO:0060442 GO:0048755 0.6681442
+
+df$size = sample(1:100,size = 100,replace = T)
+head(df)
+#           id                                                           term cluster size
+# 1 GO:1901298 regulation of hydrogen peroxide-mediated programmed cell death       6   81
+# 2 GO:0015824                                              proline transport       3   59
+# 3 GO:0051703                     intraspecies interaction between organisms       5   25
+# 4 GO:0038127                                         ERBB signaling pathway       6   71
+# 5 GO:0014050                     negative regulation of glutamate secretion       3   75
+# 6 GO:0072676                                           lymphocyte migration       3    1
+
+write.table(net,file = "net.txt",col.names = T,row.names = F,quote = F,sep = "\t")
+write.table(df,file = "df.txt",col.names = T,row.names = F,quote = F,sep = "\t")
+
+
+########################
+# variables annotation #
+########################
+# 
+# net : variable stored information about edges in the network
+# df : variables stored information about nodes in network
+# GOIDs : seleted Go ontologys in research 
+# 
+
